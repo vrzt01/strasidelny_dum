@@ -1,5 +1,12 @@
 package logika;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import main.PanelVychodu;
+import util.ObserverZmenyProstoru;
+import util.SubjektZmenyProstoru;
+
 /**
  *  Class HerniPlan - třída představující mapu a stav adventury.
  * 
@@ -11,19 +18,19 @@ package logika;
  *@author     Michael Kolling, Lubos Pavlicek, Jarmila Pavlickova, Tomáš Vrzák
  *@version    pro školní rok 2016/2017
  */
-public class HerniPlan {
+public class HerniPlan implements SubjektZmenyProstoru {
 
     private Prostor aktualniProstor;
     private Prostor vychod;
     private Postava ghul;
-
+    private List<ObserverZmenyProstoru> seznamPozorovatelu;
     /**
      *  Konstruktor který vytváří jednotlivé prostory a propojuje je pomocí východů.
      *  Jako výchozí aktuální prostor nastaví halu.
      */
     public HerniPlan(int kod1, int kod2, int kod3, int kod4) {
         zalozProstoryHry(kod1,kod2,kod3,kod4);
-
+        seznamPozorovatelu = new ArrayList<>();
     }
 
     /**
@@ -36,15 +43,15 @@ public class HerniPlan {
     private void zalozProstoryHry(int kod1, int kod2, int kod3, int kod4) {
         //String nazev, String popis, boolean jeZamceny
         // vytvářejí se jednotlivé prostory
-        Prostor chodba = new Prostor("chodba","Nacházíte se na chodbě domu.", false);     
-        Prostor koupelna = new Prostor("koupelna", "Nacházíte se v koupelně", false);
-        Prostor loznice = new Prostor("ložnice","Nacházíte se v ložnici", false);
-        Prostor obyvak = new Prostor("obývák","Nacházíte se v obývaku", false);
-        Prostor sklep = new Prostor("sklep","Nachazíte se ve sklepě.", false);
-        Prostor puda = new Prostor("půda","Nacházíte se na půde.", false);
-        Prostor schodisteSklep = new Prostor("schodiště dolů","Tímto schodištem se dostanete do sklepa.", false);
-        Prostor schodistePuda = new Prostor("schodiště nahoru","Tímto schodištem se dostanete na půdu.", false);
-        vychod = new Prostor("východ","x", true);
+        Prostor chodba = new Prostor("chodba","Nacházíte se na chodbě domu.", false, 10, 50);     
+        Prostor koupelna = new Prostor("koupelna", "Nacházíte se v koupelně", false,10, 50);
+        Prostor loznice = new Prostor("ložnice","Nacházíte se v ložnici", false,10, 50);
+        Prostor obyvak = new Prostor("obývák","Nacházíte se v obývaku", false,10, 50);
+        Prostor sklep = new Prostor("sklep","Nachazíte se ve sklepě.", false,10, 50);
+        Prostor puda = new Prostor("půda","Nacházíte se na půde.", false,10, 50);
+        Prostor schodisteSklep = new Prostor("schodiště dolů","Tímto schodištem se dostanete do sklepa.", false,10, 50);
+        Prostor schodistePuda = new Prostor("schodiště nahoru","Tímto schodištem se dostanete na půdu.", false,10, 50);
+        vychod = new Prostor("východ","x", true,10, 50);
         // přiřazují se průchody mezi prostory (sousedící prostory)
         chodba.setVychod(koupelna);
         chodba.setVychod(loznice);
@@ -171,6 +178,7 @@ public class HerniPlan {
      */
     public void setAktualniProstor(Prostor prostor) {
         aktualniProstor = prostor;
+        upozorniPozorovatele();
     }
 
     /**
@@ -201,6 +209,23 @@ public class HerniPlan {
             return false;
         }
     }
+
+   public void zaregistrujPozorovatele(ObserverZmenyProstoru pozorovatel)
+      {
+        seznamPozorovatelu.add(pozorovatel);
+      }
+
+    public void odregistrujPozorovatele(ObserverZmenyProstoru pozorovatel)
+      {
+        seznamPozorovatelu.remove(pozorovatel);
+      }
+
+    public void upozorniPozorovatele()
+      {
+        for (ObserverZmenyProstoru pozorovatel : seznamPozorovatelu) {
+            pozorovatel.aktualizuj();
+        }
+      }
 
     
 }
